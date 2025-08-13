@@ -23,7 +23,7 @@ body {
 }
 
 a, button, [role="button"], .cursor-pointer {
-  cursor: url("cursors/pointer.png") 8 8, auto;
+  cursor: url("/cursors/pointer.png") 8 8, auto;
 }
 
 

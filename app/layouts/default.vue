@@ -16,7 +16,7 @@
 }
 
 .custom-cursor {
-  cursor: url("cursors/cursor.png") 8 8, auto;
+  cursor: url("/cursors/cursor.png") 8 8, auto;
 }
 
 
