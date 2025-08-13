@@ -1,75 +1,55 @@
-# Nuxt Minimal Starter
+# Gray's Portfolio
 
-Look at the [Nuxt documentation](https://nuxt.com/docs/getting-started/introduction) to learn more.
+A modern interactive portfolio built with **Vue 3** and **Nuxt 4**, featuring smooth 3D-style animations, custom SVG cursors, and a responsive layout.  
+This site showcases my selected front-end projects, from small interactive apps to full Nuxt deployments.
 
-## Setup
+🌐 **Live Demo:** [Visit Portfolio](https://portfolio-bygray.netlify.app/)  
 
-Make sure to install dependencies:
+---
 
+## ✨ Features
+- **Vue 3 + Nuxt 4** architecture
+- **Custom animations** with CSS transforms & perspective
+- **Interactive project cards** with direct link & GitHub source access
+- **Custom cursor system** (SVG/PNG)
+- **Fully responsive** design for desktop and mobile
+- **Optimized for performance** and smooth transitions
+
+---
+
+## 📂 Projects Included
+- **Vue_3D_Calculator** – Nuxt-based 3D styled calculator  
+- **Vue_Coffee_Break** – Coffee shop concept site  
+- **Vue_Weekly_Anime** – Anime schedule & info site  
+- **Vanilla JS projects** – Original JavaScript-based versions
+
+---
+
+## 🛠 Tech Stack
+- **Frontend:** Vue 3, Nuxt 4
+- **Styling:** Modern CSS, custom media queries, animations
+- **Deployment:** Netlify / GitHub Pages
+
+---
+
+## 📸 Screenshots
+![Portfolio Preview](public/screenshot.jpg)
+
+---
+
+## 📦 Installation & Setup
 ```bash
-# npm
+# Clone the repository
+git clone https://github.com/GrayMurakami/my-portfolio-1.1.git
+
+# Navigate to the folder
+cd my-portfolio-1.1
+
+# Install dependencies
 npm install
 
-# pnpm
-pnpm install
-
-# yarn
-yarn install
-
-# bun
-bun install
-```
-
-## Development Server
-
-Start the development server on `http://localhost:3000`:
-
-```bash
-# npm
+# Run development server
 npm run dev
 
-# pnpm
-pnpm dev
-
-# yarn
-yarn dev
-
-# bun
-bun run dev
-```
-
-## Production
-
-Build the application for production:
-
-```bash
-# npm
+# Build for production
 npm run build
-
-# pnpm
-pnpm build
-
-# yarn
-yarn build
-
-# bun
-bun run build
-```
-
-Locally preview production build:
-
-```bash
-# npm
-npm run preview
-
-# pnpm
-pnpm preview
-
-# yarn
-yarn preview
-
-# bun
-bun run preview
-```
-
-Check out the [deployment documentation](https://nuxt.com/docs/getting-started/deployment) for more information.
