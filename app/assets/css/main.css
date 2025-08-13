@@ -33,8 +33,6 @@ a, button, [role="button"], .cursor-pointer {
   }
 }
 
-/* На тач-устройствах курсоры не работают — убираем кастомный,
-   чтобы не мешал отрисовке/перестроениям */
 @media (pointer: coarse), (hover: none) {
   body,
   a, button, [role="button"], .cursor-pointer,

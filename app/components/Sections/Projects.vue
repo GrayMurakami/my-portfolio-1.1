@@ -61,6 +61,17 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
+
+    <nav class="snap-dots" aria-label="Navi">
+      <a
+        v-for="(_, i) in projects"
+        :key="`dot-${i}`"
+        class="dot"
+        :class="{ active: i === visibleIndex }"
+        :href="`#proj-${i}`"
+        :aria-label="`To progect ${i + 1}`"
+      />
+    </nav>
   </div>
 </template>
 
@@ -222,61 +233,109 @@ onBeforeUnmount(() => {
 
 
 @media (max-width: 768px) {
+  :root {
+    --dot: rgba(255,255,255,.38);
+    --dot-active: rgba(255,255,255,.95);
+    --card-radius: 14px;
+    --card-shadow: 0 10px 30px rgba(0,0,0,.18);
+  }
+
   .items {
     gap: .35rem;
-    padding: 0 8px;
-    overflow-x: auto;                 /* можно скроллить ленту пальцем */
+    padding: 0 12px;
+    overflow-x: auto;
     -webkit-overflow-scrolling: touch;
-    perspective: 600px;               /* чуть поменьше глубины */
+    perspective: 600px;
+    scroll-snap-type: x mandatory;
+    scroll-behavior: smooth;
+    overscroll-behavior-inline: contain;
+    scroll-padding-inline: 16px;
+    scrollbar-width: none;
+    &::-webkit-scrollbar { display: none; }
+
+    -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+            mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
   }
 
   .item {
-    /* делаем их «плитками» и отключаем излишнюю муть/дёрганья */
     flex: 0 0 auto;
     width: 36vw;
     height: 56vw;
     max-width: none;
-    filter: grayscale(.2) brightness(.9);
-    transition: transform .6s var(--transition), width .6s var(--transition);
+    border-radius: var(--card-radius);
+    box-shadow: var(--card-shadow);
+    background-size: cover;
+    background-position: center;
+    transition: transform .45s var(--transition), width .45s var(--transition), filter .45s var(--transition);
+    scroll-snap-align: center;
+    scroll-snap-stop: always;
+    scroll-margin-inline: 10px;
+    filter: grayscale(.15) brightness(.96) contrast(1.02);
   }
 
-  /* На тачах hover нет — убираем прыжок при наведении */
-  .item:hover {
-    transform: none;
-  }
+  .item:hover { transform: none; }
 
-  /* Когда карточка активна — пусть просто расширяется, без сдвигов */
   .item:active,
   .item:focus {
     width: 60vw;
     margin: 0 .5rem;
     transform: none;
+    outline: none;
   }
 
-  /* Лейбл пониже и компактнее */
   .item .labels {
-    bottom: 6px;
-    left: 8px;
-    right: 8px;
+    bottom: 8px;
+    left: 10px;
+    right: 10px;
     gap: .4rem;
   }
-
   .item .text {
     font-size: 14px;
     padding: 6px 10px;
     border-radius: 12px;
   }
-
   .item .text--code img {
     width: 14px;
     height: 14px;
     margin: 0 4px 0 0;
     vertical-align: middle;
   }
+
+  .snap-dots {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 12px 0 2px;
+    -webkit-tap-highlight-color: transparent;
+    user-select: none;
+  }
+  .snap-dots .dot {
+    position: relative;
+    width: 8px;
+    height: 8px;
+    border-radius: 9999px;
+    background: var(--dot);
+    transition: transform .25s ease, background-color .25s ease, box-shadow .25s ease;
+
+    &::after {
+      content: "";
+      position: absolute;
+      inset: -10px;
+    }
+
+    &:active,
+    &:focus-visible {
+      transform: scale(1.25);
+      background: var(--dot-active);
+      box-shadow: 0 0 0 6px rgba(255,255,255,.18);
+      outline: none;
+    }
+  }
+
+  .wrapper:has(.items:target) .snap-dots .dot { background: var(--dot); }
+  .snap-dots:has(a:focus) .dot { background: var(--dot); }
 }
 
-/* На устройствах без hover/с «толстым» указателем – вырубаем цепные 3D-эффекты,
-   чтобы ничего не «подпрыгивало» при появлении лейбла */
 @media (hover: none), (pointer: coarse) {
   .items .item:hover + *,
   .items .item:hover + * + *,

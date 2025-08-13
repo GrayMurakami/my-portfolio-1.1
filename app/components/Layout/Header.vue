@@ -91,7 +91,6 @@ header {
     font-size: 1rem;
   }
 
-  /* Заголовок по центру без абсолютного позиционирования */
   .center {
     position: static;
     transform: none;
