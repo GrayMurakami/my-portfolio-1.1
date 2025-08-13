@@ -67,9 +67,8 @@ onBeforeUnmount(() => {
         v-for="(_, i) in projects"
         :key="`dot-${i}`"
         class="dot"
-        :class="{ active: i === visibleIndex }"
         :href="`#proj-${i}`"
-        :aria-label="`To progect ${i + 1}`"
+        :aria-label="`To project ${i + 1}`"
       />
     </nav>
   </div>
@@ -241,8 +240,8 @@ onBeforeUnmount(() => {
   }
 
   .items {
-    gap: .35rem;
-    padding: 0 12px;
+    gap: 0.5rem;
+    padding: 0 20px;
     overflow-x: auto;
     -webkit-overflow-scrolling: touch;
     perspective: 600px;
@@ -304,7 +303,7 @@ onBeforeUnmount(() => {
   .snap-dots {
     display: flex;
     justify-content: center;
-    gap: 10px;
+    gap: 5px;
     padding: 12px 0 2px;
     -webkit-tap-highlight-color: transparent;
     user-select: none;
