@@ -15,8 +15,32 @@ const handleLabelClick = (e, githubLink) => {
   clearActive();
 };
 
+const centerOnMobile = (el) => {
+  if (!el || window.innerWidth > 768) return;
+  const container = el.closest('.items');
+  if (!container) return;
+
+  let left = el.offsetLeft - (container.clientWidth - el.clientWidth) / 2;
+
+  const max = container.scrollWidth - container.clientWidth;
+  if (left < 0) left = 0;
+  if (left > max) left = max;
+
+  container.scrollTo({ left, behavior: 'smooth' });
+};
+
 const handleProjectClick = (e, index, project) => {
   e.stopPropagation();
+
+  if (window.innerWidth <= 768) {
+    const card = e.currentTarget;
+    card?.focus?.({ preventScroll: true });
+    requestAnimationFrame(() => centerOnMobile(card));
+    card.addEventListener('transitionend', (ev) => {
+      if (ev.propertyName === 'width') centerOnMobile(card);
+    }, { once: true });
+  }
+
   if (activeIndex.value === index) {
     window.open(project.link, "_blank");
   } else {
@@ -61,16 +85,6 @@ onBeforeUnmount(() => {
         </div>
       </div>
     </div>
-
-    <nav class="snap-dots" aria-label="Navi">
-      <a
-        v-for="(_, i) in projects"
-        :key="`dot-${i}`"
-        class="dot"
-        :href="`#proj-${i}`"
-        :aria-label="`To project ${i + 1}`"
-      />
-    </nav>
   </div>
 </template>
 
@@ -88,6 +102,7 @@ onBeforeUnmount(() => {
 }
 
 .items {
+  position: relative;
   display: flex;
   gap: 0.5rem;
   perspective: calc(var(--index) * 35);
@@ -233,16 +248,16 @@ onBeforeUnmount(() => {
 
 @media (max-width: 768px) {
   :root {
-    --dot: rgba(255,255,255,.38);
-    --dot-active: rgba(255,255,255,.95);
     --card-radius: 14px;
     --card-shadow: 0 10px 30px rgba(0,0,0,.18);
   }
 
   .items {
     gap: 0.5rem;
-    padding: 0 20px;
+    padding: 0 20px 0 10px;
     overflow-x: auto;
+    touch-action: pan-x;
+    overscroll-behavior-x: contain;
     -webkit-overflow-scrolling: touch;
     perspective: 600px;
     scroll-snap-type: x mandatory;
@@ -254,12 +269,33 @@ onBeforeUnmount(() => {
 
     -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
             mask-image: linear-gradient(90deg, transparent 0, #000 18px, #000 calc(100% - 18px), transparent 100%);
+
+    &::before,
+    &::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      width: 24px;
+      height: 100%;
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    &::before {
+      left: 0;
+      background: linear-gradient(to right, rgba(255,255,255,0.3), transparent);
+    }
+
+    &::after {
+      right: 0;
+      background: linear-gradient(to left, rgba(255,255,255,0.3), transparent);
+    }
   }
 
   .item {
     flex: 0 0 auto;
-    width: 36vw;
-    height: 56vw;
+    width: 30vw;
+    height: 80vw;
     max-width: none;
     border-radius: var(--card-radius);
     box-shadow: var(--card-shadow);
@@ -270,16 +306,16 @@ onBeforeUnmount(() => {
     scroll-snap-stop: always;
     scroll-margin-inline: 10px;
     filter: grayscale(.15) brightness(.96) contrast(1.02);
-  }
 
-  .item:hover { transform: none; }
+    &:hover { --nudge-x: 0px; }
 
-  .item:active,
-  .item:focus {
-    width: 60vw;
-    margin: 0 .5rem;
-    transform: none;
-    outline: none;
+    &:active,
+    &:focus {
+      width: 60vw;
+      margin: 0 .5rem;
+      transform: none;
+      outline: none;
+    }
   }
 
   .item .labels {
@@ -288,51 +324,19 @@ onBeforeUnmount(() => {
     right: 10px;
     gap: .4rem;
   }
+
   .item .text {
     font-size: 14px;
     padding: 6px 10px;
     border-radius: 12px;
   }
+
   .item .text--code img {
     width: 14px;
     height: 14px;
     margin: 0 4px 0 0;
     vertical-align: middle;
   }
-
-  .snap-dots {
-    display: flex;
-    justify-content: center;
-    gap: 5px;
-    padding: 12px 0 2px;
-    -webkit-tap-highlight-color: transparent;
-    user-select: none;
-  }
-  .snap-dots .dot {
-    position: relative;
-    width: 8px;
-    height: 8px;
-    border-radius: 9999px;
-    background: var(--dot);
-    transition: transform .25s ease, background-color .25s ease, box-shadow .25s ease;
-
-    &::after {
-      content: "";
-      position: absolute;
-      inset: -10px;
-    }
-
-    &:active,
-    &:focus-visible {
-      transform: scale(1.25);
-      background: var(--dot-active);
-      box-shadow: 0 0 0 6px rgba(255,255,255,.18);
-      outline: none;
-    }
-  }
-
-  .wrapper:has(.items:target) .snap-dots .dot { background: var(--dot); }
-  .snap-dots:has(a:focus) .dot { background: var(--dot); }
 }
 
 @media (hover: none), (pointer: coarse) {
