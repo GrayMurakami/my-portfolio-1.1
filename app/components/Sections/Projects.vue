@@ -15,30 +15,45 @@ const handleLabelClick = (e, githubLink) => {
   clearActive();
 };
 
-const centerOnMobile = (el) => {
+const centerOnMobile = (el, targetWidthPx) => {
   if (!el || window.innerWidth > 768) return;
   const container = el.closest('.items');
   if (!container) return;
 
-  let left = el.offsetLeft - (container.clientWidth - el.clientWidth) / 2;
+  container.classList.add('no-snap');
 
+  const width = targetWidthPx ?? el.getBoundingClientRect().width;
+  let left = el.offsetLeft + width / 2 - container.clientWidth / 2;
   const max = container.scrollWidth - container.clientWidth;
-  if (left < 0) left = 0;
-  if (left > max) left = max;
+  left = Math.max(0, Math.min(left, max));
 
   container.scrollTo({ left, behavior: 'smooth' });
+
+  clearTimeout(container._snapTimer);
+  container._snapTimer = setTimeout(() => {
+    container.classList.remove('no-snap');
+  }, 650);
 };
 
 const handleProjectClick = (e, index, project) => {
   e.stopPropagation();
 
   if (window.innerWidth <= 768) {
-    const card = e.currentTarget;
-    card?.focus?.({ preventScroll: true });
-    requestAnimationFrame(() => centerOnMobile(card));
-    card.addEventListener('transitionend', (ev) => {
-      if (ev.propertyName === 'width') centerOnMobile(card);
-    }, { once: true });
+  const card = e.currentTarget;
+  card?.focus?.({ preventScroll: true });
+
+  const finalW = window.innerWidth * 0.60;
+  requestAnimationFrame(() => centerOnMobile(card, finalW));
+
+  const onTr = (ev) => {
+    if (ev.target !== card) return;
+    if (ev.propertyName === 'width' || ev.propertyName === 'transform') {
+      card.removeEventListener('transitionend', onTr);
+      centerOnMobile(card);
+    }
+  };
+    card.addEventListener('transitionend', onTr);
+    setTimeout(() => card.removeEventListener('transitionend', onTr), 800);
   }
 
   if (activeIndex.value === index) {
@@ -48,8 +63,19 @@ const handleProjectClick = (e, index, project) => {
   }
 };
 
+const showSwipeHint = ref(false);
+
 onMounted(() => {
   document.addEventListener('click', handleClickOutside);
+
+  if (window.innerWidth <= 768 && projects.value?.length > 1 && !window.__swipeLeftHintShown) {
+    showSwipeHint.value = true;
+
+    setTimeout(() => {
+      showSwipeHint.value = false;
+      window.__swipeLeftHintShown = true;
+    }, 3200);
+  }
 });
 
 onBeforeUnmount(() => {
@@ -84,6 +110,8 @@ onBeforeUnmount(() => {
           </a>
         </div>
       </div>
+
+      <div v-if="showSwipeHint" class="swipe-hint" aria-hidden="true"></div>
     </div>
   </div>
 </template>
@@ -250,9 +278,48 @@ onBeforeUnmount(() => {
   :root {
     --card-radius: 14px;
     --card-shadow: 0 10px 30px rgba(0,0,0,.18);
+    --center-pad: 20vw;
   }
 
+  .swipe-hint{
+    position: absolute;
+    right: 20px;
+    left: auto;
+    top: 50%;
+    width: 67px;
+    height: 67px;
+    transform: translateY(-50%);
+    background: url('/cursors/swipe-left.png') center / contain no-repeat;
+    pointer-events: none;
+    z-index: 9;
+    opacity: 0;
+    animation: hintTwoSwipesLeft 3.2s ease-out forwards;
+  }
+
+  .items:active .swipe-hint,
+  .items .item:active ~ .swipe-hint,
+  .items .item:focus  ~ .swipe-hint { display: none; }
+
+  @keyframes hintTwoSwipesLeft {
+    0%   { opacity: 0;   transform: translate(0, -50%); }
+    10%  { opacity: .85; transform: translate(0, -50%); }
+    40%  { opacity: .85; transform: translate(-180px, -50%); }
+    45%  { opacity: 0;   transform: translate(0, -50%); }
+    55%  { opacity: .85; transform: translate(0, -50%); }
+    85%  { opacity: .85; transform: translate(-180px, -50%); }
+    100% { opacity: 0;   transform: translate(-180px, -50%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .swipe-hint { display: none; }
+  }
+
+  .items.no-snap { 
+      scroll-snap-type: none; 
+    }
+
   .items {
+    position: relative;
     gap: 0.5rem;
     padding: 0 20px 0 10px;
     overflow-x: auto;
@@ -301,11 +368,16 @@ onBeforeUnmount(() => {
     box-shadow: var(--card-shadow);
     background-size: cover;
     background-position: center;
-    transition: transform .45s var(--transition), width .45s var(--transition), filter .45s var(--transition);
+    /* transition: transform .45s var(--transition), width .45s var(--transition), filter .45s var(--transition); */
     scroll-snap-align: center;
     scroll-snap-stop: always;
     scroll-margin-inline: 10px;
     filter: grayscale(.15) brightness(.96) contrast(1.02);
+
+    transition:
+      width 600ms cubic-bezier(.22,.61,.36,1),
+      transform 600ms cubic-bezier(.22,.61,.36,1),
+      filter .45s var(--transition);
 
     &:hover { --nudge-x: 0px; }
 
@@ -338,6 +410,7 @@ onBeforeUnmount(() => {
     vertical-align: middle;
   }
 }
+
 
 @media (hover: none), (pointer: coarse) {
   .items .item:hover + *,
